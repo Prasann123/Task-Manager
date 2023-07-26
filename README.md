@@ -10,3 +10,7 @@ npm instal -- save body-parser
 save in dependencies
 
 Creating Index.js root file add require dependencies
+
+Configure PORT and enable listening to port 3000
+
+Routing needs to be enabled initially with "/" and it is mainly used to enable navigate application
