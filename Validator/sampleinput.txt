@@ -1,0 +1,8 @@
+  {
+    "id": 1,
+    "title": "Complete project proposal",
+    "description": "Write and submit the project proposal to the client",
+    "completed": false,
+    "dueDate": "2023-08-10",
+    "priority": "high"
+  }

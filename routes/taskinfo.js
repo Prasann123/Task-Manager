@@ -1,14 +1,23 @@
 const taskRoutes = require("express").Router();
-//const bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 const tasks = require("../tasks");
+const validateTasks = require("../Validator/validator");
 
-// taskRoutes.use(bodyParser.json());
+taskRoutes.use(bodyParser.json());
 
 taskRoutes.post("/", (req, res) => {
   const tasksDetails = req.body;
-  console.log(tasksDetails);
-  let AlteredTask = JSON.parse(JSON.stringify(tasks));
-  AlteredTask.push(tasksDetails);
+
+  const validationResult = validateTasks(tasksDetails);
+  if (validationResult.status) {
+    console.log(tasksDetails);
+    let AlteredTask = JSON.parse(JSON.stringify(tasks));
+    AlteredTask.push(tasksDetails);
+    console.log(AlteredTask);
+    return res.status(200).json("Task has been added successfully");
+  } else {
+    return res.status(400).json(validationResult.message);
+  }
 });
 
 taskRoutes.get("/", (req, res) => {
