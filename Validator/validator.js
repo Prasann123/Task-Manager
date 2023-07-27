@@ -16,10 +16,10 @@ const validateTasks = ({
     return { status: false, message: "Task with the same id already exists" };
   }
 
-  if (!["High", "Low", "Medium"].includes(priority)) {
+  if (!["high", "low", "medium"].includes(priority.toLowerCase())) {
     return { status: false, message: "Invalid priority" };
   }
-  if (typeof completed !== Boolean) {
+  if (typeof completed !== "boolean") {
     return { status: false, message: "Invalid completion status" };
   }
 };
