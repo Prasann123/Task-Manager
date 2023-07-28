@@ -20,12 +20,22 @@ taskRoutes.post("/", (req, res) => {
     return res.status(400).json(validationResult.message);
   }
 });
+taskRoutes.put("/priorities/:id", (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const updatePriority = req.body;
+  console.log(req.bosy);
+  let tasksUpdate = tasks.map((priority) =>
+    priority.id === taskId ? { ...priority, ...updatePriority } : priority
+  );
+
+  return res.status(200).json(tasksUpdate);
+});
 taskRoutes.put("/:id", (req, res) => {
   const taskId = parseInt(req.params.id);
-  const { id, title, description, completed, createDate, priority } = req.body;
+  const taskRecieved = req.body;
+  const errors = {};
   const tobeUpdatedTask = tasks.find((task) => task.id === parseInt(taskId));
-  console.log(req.body);
-  console.log(tobeUpdatedTask);
+
   if (
     tobeUpdatedTask === null ||
     tobeUpdatedTask === undefined ||
@@ -34,24 +44,48 @@ taskRoutes.put("/:id", (req, res) => {
     return res.status(404).json("Task requested does not exist.");
   }
   //const validationResult = validateTasks(tasksDetails);
-
+  if ("title" in taskRecieved && typeof taskRecieved.title !== "string") {
+    errors.status = "title must be string";
+  } else if ("title" in taskRecieved) {
+    tobeUpdatedTask.title = taskRecieved.title;
+  }
   if (
-    !isNullOrUndefined(title) &&
-    !isNullOrUndefined(completed) &&
-    !isNullOrUndefined(description) &&
-    !isNullOrUndefined(priority) &&
-    !isNullOrUndefined(createDate) &&
-    isValidDate(createDate)
+    "completed" in taskRecieved &&
+    typeof taskRecieved.completed !== "boolean"
   ) {
-    tobeUpdatedTask.createDate = parseISO(createDate);
-    tobeUpdatedTask.completed = completed;
-    tobeUpdatedTask.description = description;
-    tobeUpdatedTask.priority = priority;
-    tobeUpdatedTask.title = title;
+    errors.status = "completed status must be boolean";
+  } else if ("completed" in taskRecieved) {
+    tobeUpdatedTask.completed = taskRecieved.completed;
+  }
+  if (
+    "description" in taskRecieved &&
+    typeof taskRecieved.description !== "string"
+  ) {
+    errors.status = "description must be string";
+  } else if ("description" in taskRecieved) {
+    tobeUpdatedTask.description = taskRecieved.description;
+  }
+  if (
+    "priority" in taskRecieved &&
+    typeof taskRecieved.priority !== "string" &&
+    !["high", "low", "medium"].includes(taskRecieved.priority.toLowerCase())
+  ) {
+    errors.status = "priority must be string";
+  } else if ("priority" in taskRecieved) {
+    tobeUpdatedTask.priority = taskRecieved.priority;
+  }
+  if ("createDate" in taskRecieved && !isValidDate(taskRecieved.createDate)) {
+    errors.status = "createDate not in correct format";
+  } else if ("createDate" in taskRecieved) {
+    tobeUpdatedTask.createDate = parseISO(taskRecieved.createDate);
+  }
+
+  if (Object.keys(errors).length <= 0) {
     console.log(tobeUpdatedTask);
-    return res.status(200).json("Task has been modified successfully");
+    console.log(taskRecieved);
+    return res.status(200).json({ ...tobeUpdatedTask, ...taskRecieved });
   } else {
-    return res.status(404).json("Incorrect input format");
+    return res.status(404).json({ errors });
   }
 });
 taskRoutes.get("/", (req, res) => {
